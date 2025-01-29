@@ -41,7 +41,7 @@ def main():
             x, y = q.get()
             shoulderMotorAngle, elbowMotorAngle = getAngles(x, y)
             writeAngles(ser, shoulderMotorAngle, elbowMotorAngle, penState)
-        print("Job done!")
+    print("Job done!")
 
 def getAngles(x, y):
     hypotenuse = math.sqrt(x**2 + y**2)
