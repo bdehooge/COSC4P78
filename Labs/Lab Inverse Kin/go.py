@@ -4,31 +4,43 @@ import queue
 
 innerArmLength = 5
 outerArmLength = 5
-penState = 1 #1 for up, 2 for down?
+
 
 def main():
+
+    penState = 1 #1 for up, 2 for down?
 
     ser = Serial('COM1', 115200, timeout=1) #Remember to change COM number
     print( ser.readline().decode('utf-8').strip() ) #Should say 'hi.'
 
     q = queue.Queue()
-    print("Please enter coordinates in the form x,y ie: 100,100 . To change pen state type 'penUp' or 'penDown'. Enter 'quit' to exit: ")
+    print("Please enter coordinates in the form x,y ie: 100,100 . To change pen state type 'pen'. Enter 'quit' to exit: ")
     
+    #Input Loop
     while True:
-        coordinates = input("Enter Coordinates: ")
-        if coordinates == "quit":
+        inpString = input("Enter Coordinates: ")
+        if inpString == "quit":
             break
-        coordinates = coordinates.split(",")
-        x, y = coordinates[0], coordinates[1]
-        q.put((int(x), int(y)))
+        inpList = inpString.split(",")
+        if inpList[0] == "pen":
+            q.put("pen")
+        else:
+            x, y = inpList[0], inpList[1]
+            q.put((int(x), int(y)))
     
     print("Coordinates entered. Press Enter to begin.")
     input()
     
+    #Running Loop
     while q.qsize() > 0:
-        x, y = q.get()
-        shoulderMotorAngle, elbowMotorAngle = getAngles(x, y)
-        writeAngles(ser, shoulderMotorAngle, elbowMotorAngle, penState)
+        if q.get() == "pen":
+            penState = 2 if penState == 1 else 1
+            print("Pen state changed to: ", penState)
+            continue
+        else:
+            x, y = q.get()
+            shoulderMotorAngle, elbowMotorAngle = getAngles(x, y)
+            writeAngles(ser, shoulderMotorAngle, elbowMotorAngle, penState)
         print("Job done!")
 
 def getAngles(x, y):
